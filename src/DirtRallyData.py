@@ -170,13 +170,13 @@ for x in range(0, numStages):
                      entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
 
 #write names to file
-f.write(', , ')
+f.write(', , , ')
 for j in range (0, totalEntries):
   f.write(entries[j]['name']+", " + entries[j]['device'] +", ")
 f.write('\n')
 
 #write car name to file
-f.write(', , ')
+f.write(', , Fastest, ')
 for j in range (0, totalEntries):
   f.write(entries[j]['car']+", , ")
 f.write('\n')
@@ -184,13 +184,26 @@ f.write('\n')
 #write stage names and the result of each stage
 for x in range(0, numStages):
    
+   #find fastest time
+   fastestTime = 999999999
+   fastestPlayer = 99999999
+   for j in range (0, totalEntries):
+      if str(x+1) in entries[j]:
+         if timeToSeconds(entries[j][str(x+1)]) < fastestTime:
+            fastestTime = timeToSeconds(entries[j][str(x+1)])
+            fastestPlayer = j
+
    #write stage name
-   f.write(stages[x]['name']+', ' + stages[x]['time'] +', ')
+   f.write(stages[x]['name']+', ' + stages[x]['time'] +', ' + secondsToPrintable(fastestTime) +', ')
    for j in range (0, totalEntries):
       if str(x+1) in entries[j]:
          
+         #compute difference from fastest time
+         diff = timeToSeconds(entries[j][str(x+1)]) - fastestTime
          #write the players result if they have one
-         f.write(entries[j][str(x+1)]+", , ")
+         f.write(entries[j][str(x+1)]+", " + secondsToPrintable(diff)+", ")
+
+         
       else:
 
          #write a blank space if there is no time for this player
@@ -200,15 +213,26 @@ f.write('\n')
 
 
 #write stage names and the split times of each stage
+f.write(', , Fastest\n')
 for x in range(0, numStages):
    
-   #write stage name
-   f.write(stages[x]['name']+', ' + stages[x]['time'] +', ')
+   #find fastest time
+   fastestTime = 999999999
+   fastestPlayer = 99999999
    for j in range (0, totalEntries):
       if str(x+1) in entries[j]:
-         
+         if entries[j][str(x+1) +"RawTime"] < fastestTime:
+            fastestTime = entries[j][str(x+1) +"RawTime"]
+            fastestPlayer = j
+
+   #write stage name
+   f.write(stages[x]['name']+', ' + stages[x]['time'] +', ' + secondsToPrintable(fastestTime) +', ')
+   for j in range (0, totalEntries):
+      if str(x+1) in entries[j]:
+         #compute difference from fastest time
+         diff = entries[j][str(x+1) +"RawTime"] - fastestTime
          #write the players result if they have one
-         f.write(secondsToPrintable(entries[j][str(x+1) +"RawTime"]) + ", , ")
+         f.write(secondsToPrintable(entries[j][str(x+1) +"RawTime"]) +', ' + secondsToPrintable(diff) +', ')
       else:
 
          #write a blank space if there is no time for this player
