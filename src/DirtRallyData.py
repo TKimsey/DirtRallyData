@@ -61,6 +61,30 @@ event=json.loads(html)
 numStages = event.get('TotalStages')
 stages=[dict() for x in range(numStages)]
 
+#get the number of entries for each platform
+if pcEnabled:
+   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
+   event=json.loads(html)
+   totalPCEntries = len(event.get('Entries'))
+else:
+   totalPCEntries = 0
+   
+if xboxEnabled:
+   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+xboxEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
+   event=json.loads(html)
+   totalXboxEntries = len(event.get('Entries'))
+else:
+   totalXboxEntries = 0
+   
+if psEnabled:
+   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+psEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
+   event=json.loads(html)
+   totalPsEntries = len(event.get('Entries'))
+else:
+   totalPsEntries = 0
+
+totalEntries = totalPCEntries + totalXboxEntries + totalPsEntries
+entries = [dict() for x in range(totalEntries)]
 #get the results for each stage
 for x in range(0, numStages):
 
@@ -93,16 +117,29 @@ for x in range(0, numStages):
             
          #get the total number of entries
          if stageNum == 1:
-            totalEntries = len(event.get('Entries'))
-            entries = [dict() for x in range(totalEntries)]
             
             #build a list of dictionaries 
-            for i in range (0, totalEntries):
-               
-               #save the name and vehicle of player
-               entries[i]['name'] = event.get('Entries')[i].get('Name')
-               entries[i]['car']  = event.get('Entries')[i].get('VehicleName')
-               entries[i]['device'] = device
+            if y == 0:
+               for i in range (0, totalPCEntries):
+                  
+                  #save the name and vehicle of player
+                  entries[i]['name'] = event.get('Entries')[i].get('Name')
+                  entries[i]['car']  = event.get('Entries')[i].get('VehicleName')
+                  entries[i]['device'] = device
+            elif y == 1:
+               for i in range (0, totalXboxEntries):
+                  
+                  #save the name and vehicle of player
+                  entries[i+totalPCEntries]['name'] = event.get('Entries')[i].get('Name')
+                  entries[i+totalPCEntries]['car']  = event.get('Entries')[i].get('VehicleName')
+                  entries[i+totalPCEntries]['device'] = device
+            elif y == 2:
+               for i in range (0, totalPsEntries):
+                  
+                  #save the name and vehicle of player
+                  entries[i+totalPCEntries+totalXboxEntries]['name'] = event.get('Entries')[i].get('Name')
+                  entries[i+totalPCEntries+totalXboxEntries]['car']  = event.get('Entries')[i].get('VehicleName')
+                  entries[i+totalPCEntries+totalXboxEntries]['device'] = device
             
             #print the entry list
             if debug:
