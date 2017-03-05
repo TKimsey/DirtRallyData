@@ -119,6 +119,10 @@ for x in range(0, numStages):
          
          #write the players result if they have one
          f.write(entries[j][str(x+1)]+", ")
+      else:
+
+         #write a blank space if there is no time for this player
+         f.write(", ")
    f.write('\n')
 f.write('\n')
 
