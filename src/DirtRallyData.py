@@ -44,7 +44,7 @@ debug = False
 #racenet event id
 pcEventID = '204698'
 xboxEventID = ''
-psEventId = ''
+psEventID = ''
 pcEnabled   = True
 xboxEnabled = False
 psEnabled   = False
@@ -60,58 +60,77 @@ stages=[dict() for x in range(numStages)]
 for x in range(0, numStages):
 
    stageNum = x + 1
-   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
-   event=json.loads(html)
-   stages[x]['name'] = (event.get('StageName'))
-   stages[x]['time'] = (event.get('TimeOfDay'))
-   #print event
-   if debug:
-      print event
-      
-   #get the total number of entries
-   if stageNum == 1:
-      totalEntries = len(event.get('Entries'))
-      entries = [dict() for x in range(totalEntries)]
-      
-      #build a list of dictionaries 
-      for i in range (0, totalEntries):
+   enabled = False
+   device = ''
+   #Get results for PC, Xbox, and PS
+   for y in range(0, 3):
+      if y == 0: 
+         enabled = pcEnabled
+         eventID = pcEventID
+         device  = 'PC'
+      elif y == 1: 
+         enabled = xboxEnabled
+         eventID = xboxEventID
+         device  = 'Xbox'
+      elif y == 2: 
+         enabled = psEnabled
+         eventID = psEventID
+         device  = 'PS4'
          
-         #save the name and vehicle of player
-         entries[i]['name'] = event.get('Entries')[i].get('Name')
-         entries[i]['car']  = event.get('Entries')[i].get('VehicleName')
-      
-      #print the entry list
-      if debug:
-         print entries
-      
-   #get the number of entries for this stage
-   stageEntries = len(event.get('Entries'))
-   
-   #loops through all entries for this stage
-   for i in range (0, stageEntries):
-      
-      #retrieves the name
-      name = event.get('Entries')[i].get('Name')
-      
-      #todo: This could probably be made better
-      #iterates though the player list to find
-      #which player matches the name retrieved
-      for j in range (0, totalEntries):
-         
-         #if the name matches this entry save the time
-         if name == entries[j]['name']:
-            entries[j][str(stageNum)] = event.get('Entries')[i].get('Time')
+      if enabled:
+         html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
+         event=json.loads(html)
+         stages[x]['name'] = (event.get('StageName'))
+         stages[x]['time'] = (event.get('TimeOfDay'))
+         #print event
+         if debug:
+            print event
             
-            #compute diff times
-            if stageNum == 1:
-               entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time'))
-            else:
-               entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
+         #get the total number of entries
+         if stageNum == 1:
+            totalEntries = len(event.get('Entries'))
+            entries = [dict() for x in range(totalEntries)]
+            
+            #build a list of dictionaries 
+            for i in range (0, totalEntries):
+               
+               #save the name and vehicle of player
+               entries[i]['name'] = event.get('Entries')[i].get('Name')
+               entries[i]['car']  = event.get('Entries')[i].get('VehicleName')
+               entries[i]['device'] = device
+            
+            #print the entry list
+            if debug:
+               print entries
+            
+         #get the number of entries for this stage
+         stageEntries = len(event.get('Entries'))
+         
+         #loops through all entries for this stage
+         for i in range (0, stageEntries):
+            
+            #retrieves the name
+            name = event.get('Entries')[i].get('Name')
+            
+            #todo: This could probably be made better
+            #iterates though the player list to find
+            #which player matches the name retrieved
+            for j in range (0, totalEntries):
+               
+               #if the name matches this entry save the time
+               if name == entries[j]['name']:
+                  entries[j][str(stageNum)] = event.get('Entries')[i].get('Time')
+                  
+                  #compute diff times
+                  if stageNum == 1:
+                     entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time'))
+                  else:
+                     entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
 
 #write names to file
 f.write(', , ')
 for j in range (0, totalEntries):
-  f.write(entries[j]['name']+", , ")
+  f.write(entries[j]['name']+", " + entries[j]['device'] +", ")
 f.write('\n')
 
 #write car name to file
