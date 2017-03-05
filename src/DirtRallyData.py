@@ -13,8 +13,30 @@
 
 import urllib2
 import json
-
+from decimal import Decimal
 import csv
+
+#convert time in seconds to HH:MM:SS.ddd format
+def secondsToPrintable(seconds):
+
+   mi = (Decimal(seconds) - int(seconds))*1000
+   m, s = divmod(seconds, 60)
+   h, m = divmod(m, 60)
+   return "%02d:%02d:%02d.%03d" % (h, m, s, mi)
+
+#convert time in HH:MM:SS.ddd format to seconds
+def timeToSeconds(timeString):
+
+   seconds = Decimal(timeString[-3:])/1000
+   if len(timeString) > 4:
+      seconds += Decimal(timeString[-6:-4])
+   if len(timeString) > 7:
+      seconds += Decimal(timeString[-9:-7])*60
+   if len(timeString) > 11:
+      seconds += Decimal(timeString[-12:-10])*3600
+   return seconds
+
+
 f = open('data.csv', 'w')
 debug = False
 
