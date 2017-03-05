@@ -27,8 +27,7 @@ totalEntries = 0
 html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=0").read()
 event=json.loads(html)
 numStages = event.get('TotalStages')
-
-stages=[]
+stages=[dict() for x in range(numStages)]
 
 #get the results for each stage
 for x in range(0, numStages):
@@ -36,8 +35,8 @@ for x in range(0, numStages):
    stageNum = x + 1
    html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
    event=json.loads(html)
-   stages.append(event.get('StageName') )
-   
+   stages[x]['name'] = (event.get('StageName'))
+   stages[x]['time'] = (event.get('TimeOfDay'))
    #print event
    if debug:
       print event
@@ -92,7 +91,7 @@ f.write('\n')
 for x in range(0, numStages):
    
    #write stage name
-   f.write(stages[x]+', , ')
+   f.write(stages[x]['name']+', ' + stages[x]['time'] +', ')
    for j in range (0, totalEntries):
       if str(x+1) in entries[j]:
          
