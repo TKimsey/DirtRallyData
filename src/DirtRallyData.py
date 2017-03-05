@@ -15,6 +15,10 @@ import urllib2
 import json
 from decimal import Decimal
 import csv
+import sys
+
+reload(sys)
+sys.setdefaultencoding('latin-1')
 
 #convert time in seconds to HH:MM:SS.ddd format
 def secondsToPrintable(seconds):
