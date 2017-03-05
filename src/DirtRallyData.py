@@ -45,6 +45,9 @@ debug = False
 pcEventID = '204698'
 xboxEventID = ''
 psEventId = ''
+pcEnabled   = True
+xboxEnabled = False
+psEnabled   = False
 totalEntries = 0
 
 #get the number of stages
