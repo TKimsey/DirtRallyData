@@ -96,6 +96,12 @@ for x in range(0, numStages):
          #if the name matches this entry save the time
          if name == entries[j]['name']:
             entries[j][str(stageNum)] = event.get('Entries')[i].get('Time')
+            
+            #compute diff times
+            if stageNum == 1:
+               entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time'))
+            else:
+               entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
 
 #write names to file
 f.write(', , ')
@@ -119,6 +125,24 @@ for x in range(0, numStages):
          
          #write the players result if they have one
          f.write(entries[j][str(x+1)]+", ")
+      else:
+
+         #write a blank space if there is no time for this player
+         f.write(", ")
+   f.write('\n')
+f.write('\n')
+
+
+#write stage names and the split times of each stage
+for x in range(0, numStages):
+   
+   #write stage name
+   f.write(stages[x]['name']+', ' + stages[x]['time'] +', ')
+   for j in range (0, totalEntries):
+      if str(x+1) in entries[j]:
+         
+         #write the players result if they have one
+         f.write(secondsToPrintable(entries[j][str(x+1) +"RawTime"]) + ", ")
       else:
 
          #write a blank space if there is no time for this player
