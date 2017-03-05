@@ -42,11 +42,11 @@ debug = False
 
 #todo: Find how to get this automatically
 #racenet event id
-eventID = '204698'
+pcEventID = '204698'
 totalEntries = 0
 
 #get the number of stages
-html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=0").read()
+html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=0").read()
 event=json.loads(html)
 numStages = event.get('TotalStages')
 stages=[dict() for x in range(numStages)]
@@ -55,7 +55,7 @@ stages=[dict() for x in range(numStages)]
 for x in range(0, numStages):
 
    stageNum = x + 1
-   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
+   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
    event=json.loads(html)
    stages[x]['name'] = (event.get('StageName'))
    stages[x]['time'] = (event.get('TimeOfDay'))
