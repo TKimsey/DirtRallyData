@@ -42,12 +42,13 @@ debug = False
 
 #todo: Find how to get this automatically
 #racenet event id
-pcEventID = '204698'
-xboxEventID = ''
-psEventID = ''
+#pcEventID = '204698'
+pcEventID = '205167'
+xboxEventID = '205169'
+psEventID = '205168'
 pcEnabled   = True
-xboxEnabled = False
-psEnabled   = False
+xboxEnabled = True
+psEnabled   = True
 totalEntries = 0
 
 #get the number of stages
