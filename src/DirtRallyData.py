@@ -106,13 +106,13 @@ for x in range(0, numStages):
 #write names to file
 f.write(', , ')
 for j in range (0, totalEntries):
-  f.write(entries[j]['name']+", ")
+  f.write(entries[j]['name']+", , ")
 f.write('\n')
 
 #write car name to file
 f.write(', , ')
 for j in range (0, totalEntries):
-  f.write(entries[j]['car']+", ")
+  f.write(entries[j]['car']+", , ")
 f.write('\n')
 
 #write stage names and the result of each stage
@@ -124,11 +124,11 @@ for x in range(0, numStages):
       if str(x+1) in entries[j]:
          
          #write the players result if they have one
-         f.write(entries[j][str(x+1)]+", ")
+         f.write(entries[j][str(x+1)]+", , ")
       else:
 
          #write a blank space if there is no time for this player
-         f.write(", ")
+         f.write(", , ")
    f.write('\n')
 f.write('\n')
 
@@ -142,11 +142,11 @@ for x in range(0, numStages):
       if str(x+1) in entries[j]:
          
          #write the players result if they have one
-         f.write(secondsToPrintable(entries[j][str(x+1) +"RawTime"]) + ", ")
+         f.write(secondsToPrintable(entries[j][str(x+1) +"RawTime"]) + ", , ")
       else:
 
          #write a blank space if there is no time for this player
-         f.write(", ")
+         f.write(", , ")
    f.write('\n')
 f.write('\n')
 
