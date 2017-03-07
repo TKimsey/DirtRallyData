@@ -166,6 +166,7 @@ for x in range(0, numStages):
                   entries[i]['name'] = event.get('Entries')[i].get('Name')
                   entries[i]['car']  = event.get('Entries')[i].get('VehicleName')
                   entries[i]['device'] = device
+                  entries[i]['sortingTime'] = 0
             elif y == 1:
                for i in range (0, totalXboxEntries):
                   
@@ -173,6 +174,7 @@ for x in range(0, numStages):
                   entries[i+totalPCEntries]['name'] = event.get('Entries')[i].get('Name')
                   entries[i+totalPCEntries]['car']  = event.get('Entries')[i].get('VehicleName')
                   entries[i+totalPCEntries]['device'] = device
+                  entries[i]['sortingTime'] = 0
             elif y == 2:
                for i in range (0, totalPsEntries):
                   
@@ -180,6 +182,7 @@ for x in range(0, numStages):
                   entries[i+totalPCEntries+totalXboxEntries]['name'] = event.get('Entries')[i].get('Name')
                   entries[i+totalPCEntries+totalXboxEntries]['car']  = event.get('Entries')[i].get('VehicleName')
                   entries[i+totalPCEntries+totalXboxEntries]['device'] = device
+                  entries[i]['sortingTime'] = 0
             
             #print the entry list
             if debug:
@@ -203,22 +206,27 @@ for x in range(0, numStages):
                   if name == entries[j]['name']:
                      entries[j][str(stageNum)] = event.get('Entries')[i].get('Time')
                      
+                     #penalize players who have not completed the rally
+                     entries[j]['sortingTime'] = (numStages-stageNum)*600+timeToSeconds(event.get('Entries')[i].get('Time'))
+                     
                      #compute diff times
                      if stageNum == 1:
                         entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time'))
                      else:
                         entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
 
+#sort by times
+sortedEntries = sorted(entries, key=lambda k: k['sortingTime']) 
 #write names to file
 f.write(', , , ')
 for j in range (0, totalEntries):
-  f.write(entries[j]['name']+", " + entries[j]['device'] +", ")
+  f.write(sortedEntries[j]['name']+", " + sortedEntries[j]['device'] +", ")
 f.write('\n')
 
 #write car name to file
 f.write(', , Fastest, ')
 for j in range (0, totalEntries):
-  f.write(entries[j]['car']+", , ")
+  f.write(sortedEntries[j]['car']+", , ")
 f.write('\n')
 
 #write stage names and the result of each stage
@@ -228,20 +236,20 @@ for x in range(0, numStages):
    fastestTime = 999999999
    fastestPlayer = 99999999
    for j in range (0, totalEntries):
-      if str(x+1) in entries[j]:
-         if timeToSeconds(entries[j][str(x+1)]) < fastestTime:
-            fastestTime = timeToSeconds(entries[j][str(x+1)])
+      if str(x+1) in sortedEntries[j]:
+         if timeToSeconds(sortedEntries[j][str(x+1)]) < fastestTime:
+            fastestTime = timeToSeconds(sortedEntries[j][str(x+1)])
             fastestPlayer = j
 
    #write stage name
    f.write(stages[x]['name']+', ' + stages[x]['time'] +', ' + secondsToPrintable(fastestTime) +', ')
    for j in range (0, totalEntries):
-      if str(x+1) in entries[j]:
+      if str(x+1) in sortedEntries[j]:
          
          #compute difference from fastest time
-         diff = timeToSeconds(entries[j][str(x+1)]) - fastestTime
+         diff = timeToSeconds(sortedEntries[j][str(x+1)]) - fastestTime
          #write the players result if they have one
-         f.write(entries[j][str(x+1)]+", " + secondsToPrintable(diff)+", ")
+         f.write(sortedEntries[j][str(x+1)]+", " + secondsToPrintable(diff)+", ")
 
          
       else:
@@ -260,19 +268,19 @@ for x in range(0, numStages):
    fastestTime = 999999999
    fastestPlayer = 99999999
    for j in range (0, totalEntries):
-      if str(x+1) in entries[j]:
-         if entries[j][str(x+1) +"RawTime"] < fastestTime:
-            fastestTime = entries[j][str(x+1) +"RawTime"]
+      if str(x+1) in sortedEntries[j]:
+         if sortedEntries[j][str(x+1) +"RawTime"] < fastestTime:
+            fastestTime = sortedEntries[j][str(x+1) +"RawTime"]
             fastestPlayer = j
 
    #write stage name
    f.write(stages[x]['name']+', ' + stages[x]['time'] +', ' + secondsToPrintable(fastestTime) +', ')
    for j in range (0, totalEntries):
-      if str(x+1) in entries[j]:
+      if str(x+1) in sortedEntries[j]:
          #compute difference from fastest time
-         diff = entries[j][str(x+1) +"RawTime"] - fastestTime
+         diff = sortedEntries[j][str(x+1) +"RawTime"] - fastestTime
          #write the players result if they have one
-         f.write(secondsToPrintable(entries[j][str(x+1) +"RawTime"]) +', ' + secondsToPrintable(diff) +', ')
+         f.write(secondsToPrintable(sortedEntries[j][str(x+1) +"RawTime"]) +', ' + secondsToPrintable(diff) +', ')
       else:
 
          #write a blank space if there is no time for this player
