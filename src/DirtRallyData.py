@@ -10,15 +10,21 @@
 #
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import urllib
 import urllib2
 import json
 from decimal import Decimal
 import csv
 import sys
+import cookielib
 
 reload(sys)
 sys.setdefaultencoding('latin-1')
+
+#read login file
+f = open('login.txt', 'r')
+email = f.readline()
+password = f.readline()
 
 #convert time in seconds to HH:MM:SS.ddd format
 def secondsToPrintable(seconds):
@@ -40,9 +46,38 @@ def timeToSeconds(timeString):
       seconds += Decimal(timeString[-12:-10])*3600
    return seconds
 
+   
+# Store the cookies and create an opener that will hold them
+cj = cookielib.CookieJar()
+opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 
+# Add  headers
+opener.addheaders = [('User-agent', 'dirt')]
+
+# Install opener 
+urllib2.install_opener(opener)
+
+# login page
+authentication_url = 'https://accounts.codemasters.com/auth/login?client_id=o8g45jNHt393&redirect_uri=https%3A%2F%2Fwww.dirtgame.com%2FOAuthCallback&skin=Clean&state=uri%3D%252fus%252fhome&reauthenticate=0&grant_type=code&auth_hash=JjkFhCBu4Nnfkz1x9boPdinAlWE%3D'
+
+# Input parameters we are going to send
+payload = {
+   'ContinueToLinkStaging':'False',
+   'DisableLinks':'False',
+   'Email':email,
+   'Password':password,
+   'RememberMe':'False',
+  }
+
+# Use urllib to encode the payload
+data = urllib.urlencode(payload)
+
+# log in (POST)
+req = urllib2.Request(authentication_url, data)
+   
 f = open('data.csv', 'w')
 debug = False
+
 
 #todo: Find how to get this automatically
 #racenet event id
@@ -55,29 +90,32 @@ xboxEnabled = True
 psEnabled   = True
 totalEntries = 0
 
+
 #get the number of stages
-html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=0").read()
+html = urllib2.urlopen( "https://www.dirtgame.com/us/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=0").read()
 event=json.loads(html)
 numStages = event.get('TotalStages')
 stages=[dict() for x in range(numStages)]
 
 #get the number of entries for each platform
 if pcEnabled:
-   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
+   html = urllib2.urlopen( "https://www.dirtgame.com/us/api/event?eventId="+pcEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
    event=json.loads(html)
    totalPCEntries = len(event.get('Entries'))
 else:
    totalPCEntries = 0
    
 if xboxEnabled:
-   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+xboxEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
+   html = urllib2.urlopen("https://www.dirtgame.com/us/changeplatform?platform=microsoftlive")
+   html = urllib2.urlopen( "https://www.dirtgame.com/us/api/event?eventId="+xboxEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
    event=json.loads(html)
    totalXboxEntries = len(event.get('Entries'))
 else:
    totalXboxEntries = 0
    
 if psEnabled:
-   html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+psEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
+   html = urllib2.urlopen("https://www.dirtgame.com/us/changeplatform?platform=playstationnetwork")
+   html = urllib2.urlopen( "https://www.dirtgame.com/us/api/event?eventId="+psEventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=1" ).read()
    event=json.loads(html)
    totalPsEntries = len(event.get('Entries'))
 else:
@@ -97,17 +135,20 @@ for x in range(0, numStages):
          enabled = pcEnabled
          eventID = pcEventID
          device  = 'PC'
+         html = urllib2.urlopen("https://www.dirtgame.com/us/changeplatform?platform=steam")
       elif y == 1: 
          enabled = xboxEnabled
          eventID = xboxEventID
          device  = 'Xbox'
+         html = urllib2.urlopen("https://www.dirtgame.com/us/changeplatform?platform=microsoftlive")
       elif y == 2: 
          enabled = psEnabled
          eventID = psEventID
          device  = 'PS4'
+         html = urllib2.urlopen("https://www.dirtgame.com/us/changeplatform?platform=playstationnetwork")
          
       if enabled:
-         html = urllib2.urlopen( "https://www.dirtgame.com/uk/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
+         html = urllib2.urlopen( "https://www.dirtgame.com/us/api/event?eventId="+eventID+"&group=all&leaderboard=true&nameSearch=&noCache=1&page=1&stageId=" + str(stageNum) ).read()
          event=json.loads(html)
          stages[x]['name'] = (event.get('StageName'))
          stages[x]['time'] = (event.get('TimeOfDay'))
@@ -121,7 +162,6 @@ for x in range(0, numStages):
             #build a list of dictionaries 
             if y == 0:
                for i in range (0, totalPCEntries):
-                  
                   #save the name and vehicle of player
                   entries[i]['name'] = event.get('Entries')[i].get('Name')
                   entries[i]['car']  = event.get('Entries')[i].get('VehicleName')
@@ -158,16 +198,16 @@ for x in range(0, numStages):
             #iterates though the player list to find
             #which player matches the name retrieved
             for j in range (0, totalEntries):
-               
-               #if the name matches this entry save the time
-               if name == entries[j]['name']:
-                  entries[j][str(stageNum)] = event.get('Entries')[i].get('Time')
-                  
-                  #compute diff times
-                  if stageNum == 1:
-                     entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time'))
-                  else:
-                     entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
+               if 'name' in entries[j]:
+                  #if the name matches this entry save the time
+                  if name == entries[j]['name']:
+                     entries[j][str(stageNum)] = event.get('Entries')[i].get('Time')
+                     
+                     #compute diff times
+                     if stageNum == 1:
+                        entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time'))
+                     else:
+                        entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
 
 #write names to file
 f.write(', , , ')
