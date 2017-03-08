@@ -220,13 +220,13 @@ sortedEntries = sorted(entries, key=lambda k: k['sortingTime'])
 #write names to file
 f.write(', , , ')
 for j in range (0, totalEntries):
-  f.write(sortedEntries[j]['name']+", " + sortedEntries[j]['device'] +", ")
+  f.write(sortedEntries[j]['name']+", " +str(j+1)+", ")
 f.write('\n')
 
 #write car name to file
 f.write(', , Fastest, ')
 for j in range (0, totalEntries):
-  f.write(sortedEntries[j]['car']+", , ")
+  f.write(sortedEntries[j]['car'] +", "+sortedEntries[j]['device']+", ")
 f.write('\n')
 
 #write stage names and the result of each stage
