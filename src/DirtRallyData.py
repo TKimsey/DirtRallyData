@@ -26,6 +26,10 @@ f = open('login.txt', 'r')
 email = f.readline()
 password = f.readline()
 
+#read names file
+f = open('names.txt', 'r')
+names = json.loads(f.read())
+
 #convert time in seconds to HH:MM:SS.ddd format
 def secondsToPrintable(seconds):
 
@@ -220,7 +224,13 @@ sortedEntries = sorted(entries, key=lambda k: k['sortingTime'])
 #write names to file
 f.write(', , , ')
 for j in range (0, totalEntries):
-  f.write(sortedEntries[j]['name']+", " +str(j+1)+", ")
+   found = False
+   for k in range (0, len(names.get('names'))):
+      if names.get('names')[k].get('id') == sortedEntries[j]['name']:
+         f.write(names.get('names')[k].get('name')+", " +str(j+1)+", ")
+         found = True
+   if found != True:
+      f.write(sortedEntries[j]['name']+", " +str(j+1)+", ")
 f.write('\n')
 
 #write car name to file
