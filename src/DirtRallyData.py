@@ -79,7 +79,6 @@ data = urllib.urlencode(payload)
 # log in (POST)
 req = urllib2.Request(authentication_url, data)
    
-f = open('data.csv', 'w')
 debug = False
 
 
@@ -219,6 +218,8 @@ for x in range(0, numStages):
                      else:
                         entries[j][str(stageNum)+"RawTime"] = timeToSeconds(event.get('Entries')[i].get('Time')) -  timeToSeconds(entries[j][str(stageNum-1)])
 
+                        
+f = open('data.csv', 'w')
 #sort by times
 sortedEntries = sorted(entries, key=lambda k: k['sortingTime']) 
 #write names to file
