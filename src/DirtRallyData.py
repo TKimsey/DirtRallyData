@@ -299,3 +299,70 @@ for x in range(0, numStages):
    f.write('\n')
 f.write('\n')
 
+#raw basic output
+#useful for generating graphs
+f = open('rawData.csv', 'w')
+
+for j in range (0, totalEntries):
+   found = False
+   for k in range (0, len(names.get('names'))):
+      if names.get('names')[k].get('id') == sortedEntries[j]['name']:
+         f.write(names.get('names')[k].get('name')+", ")
+         found = True
+   if found != True:
+      f.write(sortedEntries[j]['name']+", ")
+f.write('\n')
+
+#write raw time behind leader
+for x in range(0, numStages):
+   
+   #find fastest time
+   fastestTime = 999999999
+   fastestPlayer = 99999999
+   for j in range (0, totalEntries):
+      if str(x+1) in sortedEntries[j]:
+         if timeToSeconds(sortedEntries[j][str(x+1)]) < fastestTime:
+            fastestTime = timeToSeconds(sortedEntries[j][str(x+1)])
+            fastestPlayer = j
+
+   for j in range (0, totalEntries):
+      if str(x+1) in sortedEntries[j]:
+         
+         #compute difference from fastest time
+         diff = timeToSeconds(sortedEntries[j][str(x+1)]) - fastestTime
+         #write the players result if they have one
+         f.write(str(diff)+", ")
+
+         
+      else:
+
+         #write a blank space if there is no time for this player
+         f.write(", ")
+   f.write('\n')
+f.write('\n')
+
+#write raw time behind fastest stage time
+for x in range(0, numStages):
+   
+   #find fastest time
+   fastestTime = 999999999
+   fastestPlayer = 99999999
+   for j in range (0, totalEntries):
+      if str(x+1) in sortedEntries[j]:
+         if sortedEntries[j][str(x+1) +"RawTime"] < fastestTime:
+            fastestTime = sortedEntries[j][str(x+1) +"RawTime"]
+            fastestPlayer = j
+
+
+   for j in range (0, totalEntries):
+      if str(x+1) in sortedEntries[j]:
+         #compute difference from fastest time
+         diff = sortedEntries[j][str(x+1) +"RawTime"] - fastestTime
+         #write the players result if they have one
+         f.write(str(diff) +', ')
+      else:
+
+         #write a blank space if there is no time for this player
+         f.write(", ")
+   f.write('\n')
+f.write('\n')
